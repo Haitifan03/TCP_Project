@@ -18,6 +18,10 @@ public class ServerTCPFile {
             System.out.println("Usage: ServerTCP <port>");
             return;
         }
+        ArrayList<String> fileList = getList();
+        rename("test2", "test", fileList);
+        System.out.println(fileList);
+        updateList(fileList);
 
         int port = Integer.parseInt(args[0]);
 
@@ -40,9 +44,8 @@ public class ServerTCPFile {
         }
     }
 
-    public static void delete(String fileName) {
+    public static void delete(String fileName, ArrayList<String> fileList) {
         File file = new File(System.getProperty("user.dir") + "/src/main/java/" + fileName);
-
         // check if the file exists
         if (file.exists()) {
             // delete the file
@@ -51,6 +54,7 @@ public class ServerTCPFile {
             // check if the file was successfully deleted
             if (deleted) {
                 System.out.println("File deleted successfully.");
+                fileList.remove(fileName);
             } else {
                 System.out.println("Failed to delete the file.");
             }
@@ -59,13 +63,15 @@ public class ServerTCPFile {
         }
     }
 
-    public static void rename(String fileName, String newName) {
+    public static void rename(String fileName, String newName, ArrayList<String> fileList) {
         File file = new File(System.getProperty("user.dir") + "/src/main/java/" + fileName);
 
         // check if the file exists
         if (file.exists()) {
             file.renameTo(new File(System.getProperty("user.dir") + "/src/main/java/" + newName));
             System.out.println("The file has been renamed.");
+            fileList.remove(fileName);
+            fileList.add(newName);
         } else {
             System.out.println("The file does not exist.");
         }
@@ -86,6 +92,8 @@ public class ServerTCPFile {
     }
     public static void addFileToList(String filename, ArrayList<String> tempArray){
         tempArray.add(filename);
+    }
+    public static void updateList(ArrayList<String> tempArray){
         File fileList = new File(System.getProperty("user.dir") + "/src/main/java/FileList");
         try (PrintWriter author = new PrintWriter(fileList)){
             for (int i=0; i<tempArray.size();i++){

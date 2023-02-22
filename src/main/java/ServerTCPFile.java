@@ -16,9 +16,6 @@ public class ServerTCPFile {
             return;
         }
         ArrayList<String> fileList = getList();
-        rename("test2", "test", fileList);
-        System.out.println(fileList);
-        updateList(fileList);
 
         int port = Integer.parseInt(args[0]);
 
@@ -34,7 +31,7 @@ public class ServerTCPFile {
 
         while (true) {
             SocketChannel serveChannel = listenChannel.accept();
-
+            System.out.println("Waiting for a request:");
             ByteBuffer buffer = ByteBuffer.allocate(1024);
             serveChannel.read(buffer);
             buffer.flip();
@@ -45,10 +42,30 @@ public class ServerTCPFile {
             buffer.rewind();
 
             String[] responseArray = response.split(" ");
-            String fileName = responseArray[1];
+            String command = responseArray[0];
 
-            File file = new File(System.getProperty("user.dir") + "/src/main/java/" + fileName);
-            serveChannel.write(ByteBuffer.wrap(fileToByteArray(file)));
+            if (command == "lst"){
+
+            }
+            else{
+                String fileName = responseArray[1];
+                if (command == "del"){
+
+                }
+                else if (command == "rnm"){
+                    String newName = responseArray[2];
+                }
+                else if (command == "upl"){
+
+                }
+                else if (command == "dld"){
+
+                    File file = new File(System.getProperty("user.dir") + "/src/main/java/" + fileName);
+                    serveChannel.write(ByteBuffer.wrap(fileToByteArray(file)));
+                }
+            }
+
+
             serveChannel.close();
         }
     }

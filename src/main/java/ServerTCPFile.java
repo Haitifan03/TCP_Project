@@ -36,9 +36,8 @@ public class ServerTCPFile {
             serveChannel.read(buffer);
             buffer.flip();
             byte[] bytes = buffer.array();
-            System.out.println(new String(bytes));
-            buffer.rewind();
             String response = new String(bytes);
+            System.out.println(response);
             buffer.rewind();
 
             String[] responseArray = response.split(" ");
@@ -60,11 +59,11 @@ public class ServerTCPFile {
                 }
                 else if (command == "dld"){
 
-                    File file = new File(System.getProperty("user.dir") + "/src/main/java/" + fileName);
-                    serveChannel.write(ByteBuffer.wrap(fileToByteArray(file)));
                 }
             }
-
+            System.out.println("Sending file back now");
+            File file = new File(System.getProperty("user.dir") + "/src/main/java/test");
+            serveChannel.write(ByteBuffer.wrap(fileToByteArray(file)));
 
             serveChannel.close();
         }

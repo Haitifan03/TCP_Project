@@ -26,6 +26,12 @@ public class ServerTCPFile {
 
         listenChannel.bind(new InetSocketAddress(port));
 
+        // lst
+        // del fileName
+        // rnm fileName newName
+        // upl fileName
+        // dld fileName
+
         while (true) {
             SocketChannel serveChannel = listenChannel.accept();
 
@@ -35,8 +41,14 @@ public class ServerTCPFile {
             byte[] bytes = buffer.array();
             System.out.println(new String(bytes));
             buffer.rewind();
+            String response = new String(bytes);
+            buffer.rewind();
 
-            serveChannel.write(buffer);
+            String[] responseArray = response.split(" ");
+            String fileName = responseArray[1];
+
+            File file = new File(System.getProperty("user.dir") + "/src/main/java/" + fileName);
+            serveChannel.write(ByteBuffer.wrap(fileToByteArray(file)));
             serveChannel.close();
         }
     }
@@ -101,7 +113,7 @@ public class ServerTCPFile {
         }
     }
 
-    public static byte[] readFileToByteArray(File file) throws IOException {
+    public static byte[] fileToByteArray(File file) throws IOException {
         FileInputStream inputStream = new FileInputStream(file);
         byte[] bytes = new byte[(int) file.length()];
         inputStream.read(bytes);

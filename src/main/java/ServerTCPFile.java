@@ -1,9 +1,6 @@
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
@@ -102,5 +99,18 @@ public class ServerTCPFile {
         } catch (Exception e){
 
         }
+    }
+
+    public static byte[] readFileToByteArray(File file) throws IOException {
+        FileInputStream inputStream = new FileInputStream(file);
+        byte[] bytes = new byte[(int) file.length()];
+        inputStream.read(bytes);
+        inputStream.close();
+        return bytes;
+    }
+    public static void writeByteArrayToFile(byte[] bytes, File file) throws IOException {
+        FileOutputStream outputStream = new FileOutputStream(file);
+        outputStream.write(bytes);
+        outputStream.close();
     }
 }

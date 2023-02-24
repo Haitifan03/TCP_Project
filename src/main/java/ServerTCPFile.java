@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -36,35 +37,50 @@ public class ServerTCPFile {
             serveChannel.read(buffer);
             buffer.flip();
             byte[] bytes = buffer.array();
-            String response = new String(bytes);
-            System.out.println(response);
+            String request = new String(bytes);
+            System.out.println(request);
             buffer.rewind();
 
-            String[] responseArray = response.split(" ");
-            String command = responseArray[0];
+            String[] requestArray = request.split(" ");
+            String command = requestArray[0];
+            System.out.println("The command is " + command);
+            String response = "";
 
-            if (command == "lst"){
-
+            if (command.contains("lst")){
+                for (int x =0; x < getList().size(); x++){
+                    response += getList().get(x) + ", ";
+                }
             }
             else{
-                String fileName = responseArray[1];
-                if (command == "del"){
+                String fileName = requestArray[1];
+                System.out.println("The fileName is " + fileName);
 
+                if (command.contains("del")){
+                    delete(fileName, fileList);
+                    updateList(fileList);
+                    response = fileName + " deleted";
                 }
-                else if (command == "rnm"){
-                    String newName = responseArray[2];
+                else if (command.contains("rnm")){
+                    String newName = requestArray[2];
+                    System.out.println("The new name is " + newName);
+                    rename(fileName, newName, fileList);
+                    updateList(fileList);
+                    response = fileName + " renamed to " + newName;
                 }
-                else if (command == "upl"){
-
+                else if (command.contains("uld")){
+                    response = "file is being received.";
+                    File file = new File(System.getProperty("user.dir") + "/src/main/java/test");
+                    serveChannel.write(ByteBuffer.wrap(fileToByteArray(file)));
                 }
-                else if (command == "dld"){
-
+                else if (command.contains("dld")){
+                    response = "Sending file back now";
+                    File file = new File(System.getProperty("user.dir") + "/src/main/java/test");
+                    serveChannel.write(ByteBuffer.wrap(fileToByteArray(file)));
                 }
             }
-            System.out.println("Sending file back now");
-            File file = new File(System.getProperty("user.dir") + "/src/main/java/test");
-            serveChannel.write(ByteBuffer.wrap(fileToByteArray(file)));
+            System.out.println("The response is " + response);
 
+            serveChannel.write(ByteBuffer.wrap(response.getBytes()));
             serveChannel.close();
         }
     }

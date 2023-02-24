@@ -1,3 +1,5 @@
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -29,9 +31,16 @@ public class ClientTCPFile {
         sc.read(buffer);
         buffer.flip();
         byte[] bytes = buffer.array();
+        File file = new File(System.getProperty("user.dir") + "/src/main/java/test");
+        writeByteArrayToFile(bytes, file);
         System.out.println(new String(bytes));
 
         sc.close();
 
+    }
+    public static void writeByteArrayToFile(byte[] bytes, File file) throws IOException {
+        FileOutputStream outputStream = new FileOutputStream(file);
+        outputStream.write(bytes);
+        outputStream.close();
     }
 }

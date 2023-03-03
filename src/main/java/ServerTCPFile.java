@@ -5,18 +5,19 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ServerTCPFile {
+    static ArrayList<String> fileList;
+
     public static void main(String @NotNull [] args) throws IOException {
 
         if (args.length != 1) {
             System.out.println("Usage: ServerTCP <port>");
             return;
         }
-        ArrayList<String> fileList = getList();
+        fileList = getList();
 
         int port = Integer.parseInt(args[0]);
 
@@ -56,28 +57,35 @@ public class ServerTCPFile {
                 System.out.println("The fileName is " + fileName);
 
                 if (command.contains("del")){
-                    delete(fileName, fileList);
-                    updateList(fileList);
+                    delete(fileName);
+                    updateList();
                     response = fileName + " deleted";
                 }
                 else if (command.contains("rnm")){
                     String newName = requestArray[2];
                     System.out.println("The new name is " + newName);
-                    rename(fileName, newName, fileList);
-                    updateList(fileList);
+                    rename(fileName, newName);
+                    updateList();
                     response = fileName + " renamed to " + newName;
                 }
                 else if (command.contains("uld")){
                     response = "file is being received.";
-                    File file = new File(System.getProperty("user.dir") + "/src/main/java/test");
-                    serveChannel.write(ByteBuffer.wrap(fileToByteArray(file)));
+                    File file = new File(System.getProperty("user.dir") + "/src/main/java/" + fileName);
+                    addFileToList(fileName);
+                    updateList();
+                    buffer = ByteBuffer.allocate(1024);
+                    serveChannel.read(buffer);
+                    buffer.flip();
+                    byte[] byts = buffer.array();
+                    writeByteArrayToFile(byts, file);
                 }
                 else if (command.contains("dld")){
                     response = "Sending file back now";
-                    File file = new File(System.getProperty("user.dir") + "/src/main/java/test");
+                    File file = new File(System.getProperty("user.dir") + "/src/main/java/" + fileName);
                     serveChannel.write(ByteBuffer.wrap(fileToByteArray(file)));
                 }
             }
+
             System.out.println("The response is " + response);
 
             serveChannel.write(ByteBuffer.wrap(response.getBytes()));
@@ -85,7 +93,7 @@ public class ServerTCPFile {
         }
     }
 
-    public static void delete(String fileName, ArrayList<String> fileList) {
+    public static void delete(String fileName) {
         File file = new File(System.getProperty("user.dir") + "/src/main/java/" + fileName);
         // check if the file exists
         if (file.exists()) {
@@ -104,7 +112,7 @@ public class ServerTCPFile {
         }
     }
 
-    public static void rename(String fileName, String newName, ArrayList<String> fileList) {
+    public static void rename(String fileName, String newName) {
         File file = new File(System.getProperty("user.dir") + "/src/main/java/" + fileName);
 
         // check if the file exists
@@ -131,14 +139,14 @@ public class ServerTCPFile {
         catch (Exception e) {}
         return tempArray;
     }
-    public static void addFileToList(String filename, ArrayList<String> tempArray){
-        tempArray.add(filename);
+    public static void addFileToList(String filename){
+        fileList.add(filename);
     }
-    public static void updateList(ArrayList<String> tempArray){
-        File fileList = new File(System.getProperty("user.dir") + "/src/main/java/FileList");
-        try (PrintWriter author = new PrintWriter(fileList)){
-            for (int i=0; i<tempArray.size();i++){
-                author.println(tempArray.get(i));
+    public static void updateList(){
+        File fileListFile = new File(System.getProperty("user.dir") + "/src/main/java/FileList");
+        try (PrintWriter author = new PrintWriter(fileListFile)){
+            for (String s : fileList) {
+                author.println(s);
             }
         } catch (Exception e){
 
